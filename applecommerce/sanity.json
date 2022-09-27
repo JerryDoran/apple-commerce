@@ -4,14 +4,15 @@
     "name": "apple-commerce"
   },
   "api": {
-    "projectId": "r4syamv1",
+    "projectId": "wremhcr1",
     "dataset": "production"
   },
   "plugins": [
     "@sanity/base",
     "@sanity/default-layout",
     "@sanity/default-login",
-    "@sanity/desk-tool"
+    "@sanity/desk-tool",
+    "barcode-input"
   ],
   "env": {
     "development": {
