@@ -2,9 +2,17 @@ import { Tab } from '@headlessui/react';
 import Head from 'next/head';
 import Header from '../components/Header';
 import Hero from '../components/Hero';
+import Product from '../components/Product';
+import { fetchCategories } from '../lib/fetchCategories';
+import { fetchProducts } from '../lib/fetchProducts';
 
-export default function Home() {
-  const showProducts = (index) => {};
+export default function Home({ categories, products }) {
+  const showProducts = (cat) => {
+    return products
+      .filter((product) => product.category?._ref === categories[cat]._id)
+      .map((product) => <Product key={product._id} product={product} />);
+  };
+
   return (
     <div>
       <Head>
@@ -26,7 +34,7 @@ export default function Home() {
           {/* Headless UI code here for tabbed panels */}
           <Tab.Group>
             <Tab.List className='flex justify-center'>
-              {/* {categories.map((category) => (
+              {categories.map((category) => (
                 <Tab
                   key={category._id}
                   id={category._id}
@@ -40,7 +48,7 @@ export default function Home() {
                 >
                   {category.title}
                 </Tab>
-              ))} */}
+              ))}
             </Tab.List>
             <Tab.Panels className='mx-auto max-w-fit pt-10 pb-24 sm:px-4'>
               <Tab.Panel className='tabPanel'>{showProducts(0)}</Tab.Panel>
@@ -54,3 +62,17 @@ export default function Home() {
     </div>
   );
 }
+
+export const getServerSideProps = async () => {
+  const categories = await fetchCategories();
+  const products = await fetchProducts();
+
+  // console.log(categories);
+
+  return {
+    props: {
+      categories,
+      products,
+    },
+  };
+};
