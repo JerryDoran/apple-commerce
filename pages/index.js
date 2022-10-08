@@ -1,5 +1,6 @@
 import { Tab } from '@headlessui/react';
 import Head from 'next/head';
+import Cart from '../components/Cart';
 import Header from '../components/Header';
 import Hero from '../components/Hero';
 import Product from '../components/Product';
@@ -21,7 +22,8 @@ export default function Home({ categories, products }) {
         <link rel='icon' href='/favicon.ico' />
       </Head>
 
-      <Header />
+      {/* <Header /> */}
+      <Cart />
       <main className='relative h-[200vh] bg-[#e9eced]'>
         <Hero />
       </main>
