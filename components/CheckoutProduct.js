@@ -17,7 +17,7 @@ export default function CheckoutProduct({ items, id }) {
   };
 
   return (
-    <>
+    <div className='flex flex-col gap-x-4 border-b border-gray-300 pb-5 lg:flex-row lg:items-center '>
       <div className='relative h-40 w-40'>
         <Image
           src={urlFor(items[0].image[0]).url()}
@@ -40,8 +40,8 @@ export default function CheckoutProduct({ items, id }) {
             <ChevronDownIcon className='h-6 w-6 cursor-pointer text-blue-500' />
           </p>
         </div>
-        <div>
-          <h4>
+        <div className='flex flex-col items-end space-y-4'>
+          <h4 className='text-lg font-semibold lg:text-xl'>
             <Currency
               quantity={items.reduce((acc, item) => acc + item.price, 0)}
               currency='USD'
@@ -55,6 +55,6 @@ export default function CheckoutProduct({ items, id }) {
           </button>
         </div>
       </div>
-    </>
+    </div>
   );
 }

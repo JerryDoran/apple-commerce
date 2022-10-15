@@ -10,7 +10,11 @@ export const cartSlice = createSlice({
   reducers: {
     // actions
     addToCart: (state, action) => {
-      state.cartItems = [...state.cartItems, action.payload];
+      // state.cartItems = [...state.cartItems, action.payload];
+      
+      // also could write like this since reducers in the slices use immer.js that worries about
+      // state mutation so we don't have to
+      state.cartItems.push(action.payload);
     },
     removeFromCart: (state, action) => {
       const index = state.cartItems.findIndex(
@@ -39,11 +43,7 @@ export const selectCartItemsWithId = (state, id) => {
   state.cart.cartItems.filter((cartItem) => cartItem._id === id);
 };
 export const selectCartTotal = (state) => {
-  state.cart.cartItems.reduce((acc, cartItem) => {
-    let cartTotal = (acc += cartItem.price);
-
-    return cartTotal;
-  }, 0);
+  state.cart.cartItems.reduce((acc, cartItem) => (acc += cartItem.price), 0);
 };
 
 export default cartSlice.reducer;
