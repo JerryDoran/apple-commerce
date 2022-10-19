@@ -7,10 +7,11 @@ import {
 } from '@heroicons/react/outline';
 import { useSelector } from 'react-redux';
 import { selectCartItems } from '../redux/cartSlice';
+import { signIn, signOut, useSession } from 'next-auth/react';
 
 export default function Header() {
   const cartItems = useSelector(selectCartItems);
-  const session = false;
+  const { data: session } = useSession();
   return (
     <header className='sticky top-0 z-30 flex w-full items-center justify-between bg-[#e7ecee] p-4'>
       <div className='flex h-20 items-center justify-center md:w-1/5'>
@@ -51,12 +52,12 @@ export default function Header() {
             }
             alt='profile-image'
             className='cursor-pointer rounded-full'
-            w={34}
-            h={34}
-            onClick={() => signOut}
+            width={34}
+            height={34}
+            onClick={() => signOut()}
           />
         ) : (
-          <UserIcon className='headerIcon' onClick={() => signOut} />
+          <UserIcon className='headerIcon' onClick={() => signIn()} />
         )}
       </div>
     </header>

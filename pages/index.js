@@ -1,7 +1,7 @@
 import { Tab } from '@headlessui/react';
 import Head from 'next/head';
 import Cart from '../components/Cart';
-import Header from '../components/Header';
+import { getSession } from 'next-auth/react';
 import Hero from '../components/Hero';
 import Product from '../components/Product';
 import { fetchCategories } from '../lib/fetchCategories';
@@ -65,16 +65,17 @@ export default function Home({ categories, products }) {
   );
 }
 
-export const getServerSideProps = async () => {
+export const getServerSideProps = async (context) => {
   const categories = await fetchCategories();
   const products = await fetchProducts();
 
-  // console.log(categories);
+  const session = await getSession(context);
 
   return {
     props: {
       categories,
       products,
+      session,
     },
   };
 };

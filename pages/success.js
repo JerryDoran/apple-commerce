@@ -1,12 +1,38 @@
-import { CheckIcon } from '@heroicons/react/solid';
+import {
+  CheckIcon,
+  ChevronDownIcon,
+  ChevronUpIcon,
+  ShoppingCartIcon,
+} from '@heroicons/react/solid';
 import Head from 'next/head';
 import { useRouter } from 'next/router';
+import { useEffect } from 'react';
+import { useState } from 'react';
+import { useMediaQuery } from 'react-responsive';
 import Button from '../components/Button';
+import Currency from 'react-currency-formatter';
+import { fetchLineItems } from '../lib/fetchLineItems';
+import Image from 'next/image';
+import { useSession } from 'next-auth/react';
 
-export default function Success() {
+export default function Success({ products }) {
   const router = useRouter();
-
+  const [mounted, setMounted] = useState(false);
+  const [showOrderSummary, setShowOrderSummary] = useState(false);
   const { session_id } = router.query;
+  const { data: session } = useSession();
+
+  const subtotal = products.reduce((acc, product) => {
+    return acc + product.price.unit_amount / 100;
+  }, 0);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  const isTabletOrMobile = useMediaQuery({ query: '(max-width: 1024px)' });
+  const showOrderSummaryCondition = isTabletOrMobile ? showOrderSummary : true;
+
   return (
     <div>
       <Head>
@@ -25,8 +51,8 @@ export default function Success() {
           </div>
         </Link>
       </header> */}
-      <main className=''>
-        <section className='order-2 mx-auto max-w-xl pb-12 lg:max-w-none lg:pr-16 lg:pt-16 xl:pl-16 2xl:pl-44'>
+      <main className='grid grid-cols-1 lg:grid-cols-9'>
+        <section className='order-2 mx-auto max-w-xl pb-12 lg:col-span-5 lg:mx-0 lg:max-w-none lg:pr-16 lg:pt-16 xl:pl-16 2xl:pl-44'>
           {/* <Link href='/'>
             <div className='relative ml-4 hidden h-16 w-8 cursor-pointer transition lg:inline-flex'>
               <Image
@@ -47,7 +73,7 @@ export default function Success() {
               </p>
               <h4 className='text-lg'>
                 Thank you{' '}
-                {/* {session ? session.user?.name?.split(' ')[0] : 'Guest'} */}
+                {session ? session.user?.name?.split(' ')[0] : 'Guest'}
               </h4>
             </div>
           </div>
@@ -74,17 +100,117 @@ export default function Success() {
           </div>
           <div className='mx-4 flex flex-col items-center justify-between text-sm lg:ml-14 lg:flex-row'>
             <p className='hidden lg:inline'>Need help? Contact us</p>
-            {/* {mounted && (
+            {mounted && (
               <Button
                 title='Continue Shopping'
                 onClick={() => router.push('/')}
                 width={isTabletOrMobile ? 'w-full' : undefined}
                 padding='py-4'
               />
-            )} */}
+            )}
           </div>
         </section>
+        {mounted && (
+          <section className='overflow-y-scroll border-y border-l border-gray-300 bg-[#fafafa] lg:order-2 lg:col-span-4 lg:h-screen lg:border-y-0'>
+            <div
+              className={`w-full ${
+                showOrderSummaryCondition && 'border-b'
+              } border-gray-300 text-sm lg:hidden`}
+            >
+              <div className='mx-auto flex max-w-xl items-center justify-between px-4 py-6'>
+                <button
+                  onClick={() => setShowOrderSummary(!showOrderSummary)}
+                  className='flex items-center gap-x-2'
+                >
+                  <ShoppingCartIcon className='h-6 w-6' />
+                  <p>Show order summary</p>
+                  {showOrderSummaryCondition ? (
+                    <ChevronUpIcon className='h-4 w-4' />
+                  ) : (
+                    <ChevronDownIcon className='h-4 w-4' />
+                  )}
+                </button>
+                <p className='text-xl font-medium text-black'>
+                  <Currency quantity={subtotal + 20} currency='USD' />
+                </p>
+              </div>
+            </div>
+
+            {showOrderSummaryCondition && (
+              <div className='mx-auto max-w-xl divide-y border-gray-300 px-4 py-4 lg:mx-0 lg:max-w-lg lg:px-10 lg:py-16'>
+                <div className='space-y-4 pb-4'>
+                  {products.map((product) => (
+                    <div
+                      key={product.id}
+                      className='flex items-center gap-x-4 text-sm font-medium'
+                    >
+                      <div className='relative flex h-16 w-16 items-center justify-center rounded-md border border-gray-300 bg-[#f1f1f1] text-xs text-white'>
+                        <div className='relative h-7 w-7 animate-bounce rounded-md'>
+                          <Image
+                            src='https://rb.gy/vsvv2o'
+                            layout='fill'
+                            objectFit='contain'
+                            alt='apple-logo'
+                          />
+                        </div>
+                        <div className='absolute -right-2 -top-2 flex h-5 w-5 items-center justify-center rounded-full bg-[gray] text-xs'>
+                          {product.quantity}
+                        </div>
+                      </div>
+                      <p className='flex-1'>{product.description}</p>
+                      <p>
+                        <Currency
+                          quantity={product.price.unit_amount / 100}
+                          currency={product.currency}
+                        />
+                      </p>
+                    </div>
+                  ))}
+                </div>
+                <div className='space-y-1 py-4'>
+                  <div className='flex justify-between text-sm'>
+                    <p className='text-[gray]'>Subtotal</p>
+                    <p className='font-medium'>
+                      <Currency quantity={subtotal} />
+                    </p>
+                  </div>
+                  <div className='flex justify-between text-sm'>
+                    <p className='text-[gray]'>Discount</p>
+                    <p className='text-[gray]'></p>
+                  </div>
+                  <div className='flex justify-between text-sm'>
+                    <p className='text-[gray]'>Shipping</p>
+                    <p className='font-medium'>
+                      <Currency quantity={20} currency='USD' />
+                    </p>
+                  </div>
+                </div>
+                <div className='flex justify-between pt-4'>
+                  <p>Total</p>
+                  <p className='flex items-center gap-x-2 text-xs text-[gray]'>
+                    USD
+                    <span className='text-xl font-medium text-black'>
+                      <Currency quantity={subtotal + 20} />
+                    </span>
+                  </p>
+                </div>
+              </div>
+            )}
+          </section>
+        )}
       </main>
     </div>
   );
 }
+
+// fetching products from Stripe instead of Sanity
+export const getServerSideProps = async (context) => {
+  const { query } = context;
+  const sessionId = query.session_id;
+  const products = await fetchLineItems(sessionId);
+  return {
+    props: {
+      products,
+    },
+  };
+};
